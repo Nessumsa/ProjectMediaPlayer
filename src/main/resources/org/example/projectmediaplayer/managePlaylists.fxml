@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="513.0" prefWidth="316.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="66.0" prefWidth="317.0" text="Manage playlists">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Label>
+      <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="25.0" prefWidth="317.0" text="Create new playlist">
+         <VBox.margin>
+            <Insets left="22.0" right="22.0" />
+         </VBox.margin>
+      </Button>
+      <ListView fx:id="playlistList" prefHeight="388.0" prefWidth="316.0" />
+      <AnchorPane prefHeight="40.0" prefWidth="318.0">
+         <children>
+            <Button layoutX="159.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="159.0" text="Delete playlist" />
+            <Button layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="159.0" text="Edit playlist" />
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>

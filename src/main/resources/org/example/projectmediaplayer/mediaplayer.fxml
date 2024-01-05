@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="502.0" prefWidth="874.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <AnchorPane prefHeight="60.0" prefWidth="600.0" style="-fx-background-color: lightblue;" BorderPane.alignment="CENTER">
+         <children>
+            <TextField fx:id="searchBar" layoutX="705.0" layoutY="18.0" promptText="Search bar" />
+            <Button fx:id="managePlaylistButton" layoutX="587.0" layoutY="18.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" text="Manage playlists" />
+         </children></AnchorPane>
+   </top>
+   <bottom>
+      <AnchorPane prefHeight="60.0" prefWidth="600.0" style="-fx-background-color: lightblue;" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="previousButton" layoutX="312.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Previous" />
+            <Button fx:id="playButton" layoutX="367.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Play" />
+            <Button fx:id="pauseButton" layoutX="367.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Pause" visible="false" />
+            <Button fx:id="stopButton" layoutX="424.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Stop" />
+            <Button fx:id="nextButton" layoutX="481.0" layoutY="8.0" mnemonicParsing="false" prefHeight="45.0" prefWidth="45.0" text="Next" />
+            <Slider fx:id="volumeSlider" layoutX="615.0" layoutY="23.0" />
+         </children>
+      </AnchorPane>
+   </bottom>
+   <right>
+      <TitledPane fx:id="queuePane" animated="false" prefHeight="382.0" prefWidth="202.0" text="Queue" BorderPane.alignment="CENTER">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <ListView layoutY="-3.0" prefHeight="257.0" prefWidth="200.0" />
+               </children>
+            </AnchorPane>
+        </content>
+      </TitledPane>
+   </right>
+   <center>
+      <Pane prefHeight="382.0" prefWidth="504.0" style="-fx-background-color: lightgreen;" BorderPane.alignment="CENTER" />
+   </center>
+   <left>
+      <TitledPane fx:id="mediaLibraryPane" animated="false" prefHeight="382.0" prefWidth="168.0" text="Media Library" BorderPane.alignment="CENTER">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="356.0" prefWidth="167.0" />
+        </content>
+      </TitledPane>
+   </left>
+</BorderPane>
