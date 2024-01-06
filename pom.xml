@@ -47,6 +47,11 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>18.0.2</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -69,7 +74,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>org.example.projectmediaplayer/org.example.projectmediaplayer.HelloApplication
+                            <mainClass>org.example.projectmediaplayer/org.example.projectmediaplayer.MediaPlayerApplication
                             </mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
