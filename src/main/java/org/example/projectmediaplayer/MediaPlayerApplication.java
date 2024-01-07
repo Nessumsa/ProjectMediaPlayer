@@ -8,6 +8,11 @@ import javafx.scene.media.*;
 
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Properties;
 
 public class MediaPlayerApplication extends Application {
     @Override
@@ -19,7 +24,8 @@ public class MediaPlayerApplication extends Application {
         stage.show();
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         launch();
     }
+
 }
