@@ -19,7 +19,7 @@ public class MediaPlayerApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MediaPlayerApplication.class.getResource("mediaplayer.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 900, 500);
-        stage.setTitle("Hello!");
+        stage.setTitle("Mediaplayer");
         stage.setScene(scene);
         stage.show();
     }

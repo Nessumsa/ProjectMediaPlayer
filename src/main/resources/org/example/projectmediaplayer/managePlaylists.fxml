@@ -1,49 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.media.*?>
 <?import javafx.scene.text.*?>
 
-<Pane xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.projectmediaplayer.MediaPlayerController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.projectmediaplayer.MediaPlayerController">
    <children>
-      <VBox prefHeight="513.0" prefWidth="316.0">
-         <children>
-            <Label alignment="CENTER" prefHeight="35.0" prefWidth="316.0" text="New playlist" />
-            <Label alignment="CENTER" prefHeight="47.0" prefWidth="316.0" text="Enter the name of the playlist" />
-            <TextField fx:id="inputPlaylistNameTField" prefHeight="40.0" prefWidth="316.0" />
-            <TitledPane animated="false" prefHeight="206.0" prefWidth="389.0" text="Medias">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-              </content>
-            </TitledPane>
-            <Button fx:id="createPlaylistButton" mnemonicParsing="false" onAction="#onCreatePlaylistButtonClick" prefHeight="37.0" prefWidth="316.0" text="Create playlist">
-               <VBox.margin>
-                  <Insets left="20.0" right="20.0" top="10.0" />
-               </VBox.margin>
-            </Button>
-         </children>
-      </VBox>
-      <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="513.0" prefWidth="316.0" visible="false">
-         <children>
-            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="66.0" prefWidth="317.0" text="Manage playlists">
-               <font>
-                  <Font size="20.0" />
-               </font>
-            </Label>
-            <Button alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" prefHeight="25.0" prefWidth="317.0" text="Create new playlist">
-               <VBox.margin>
-                  <Insets left="22.0" right="22.0" />
-               </VBox.margin>
-            </Button>
-            <ListView fx:id="playlistList" prefHeight="388.0" prefWidth="316.0" />
-            <AnchorPane prefHeight="40.0" prefWidth="318.0">
-               <children>
-                  <Button layoutX="159.0" layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="159.0" text="Delete playlist" />
-                  <Button layoutY="8.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="159.0" text="Edit playlist" />
-               </children>
-            </AnchorPane>
-         </children>
-      </VBox>
+      <Label alignment="CENTER" prefHeight="55.0" prefWidth="700.0" style="-fx-background-color: lightgray;" text="Manage playlists">
+         <font>
+            <Font size="35.0" />
+         </font>
+      </Label>
+      <Button fx:id="createPlaylistButton" layoutY="55.0" mnemonicParsing="false" onAction="#onCreatePlaylistButtonClick" prefHeight="35.0" prefWidth="233.0" text="Create playlist" />
+      <Button fx:id="editPlaylistButton" layoutX="233.0" layoutY="55.0" mnemonicParsing="false" onAction="#onEditPlaylistButtonClick" prefHeight="35.0" prefWidth="234.0" text="Edit playlist" />
+      <Button fx:id="deletePlaylistButton" layoutX="467.0" layoutY="55.0" mnemonicParsing="false" onAction="#onDeletePlaylistButtonClick" prefHeight="35.0" prefWidth="233.0" text="Delete playlist" />
+      <Button fx:id="backToMediaplayerButton" layoutX="14.0" layoutY="15.0" onAction="#onBackToMediaplayerButtonClick" prefHeight="25.0" prefWidth="127.0" text="Back to mediaplayer" />
+      <ListView fx:id="mediaLibraryListView" layoutY="122.0" prefHeight="377.0" prefWidth="200.0" style="-fx-background-color: lightyellow;" />
+      <Label alignment="CENTER" layoutY="90.0" prefHeight="35.0" prefWidth="200.0" style="-fx-background-color: lightgreen;" text="Media library" />
+      <ListView fx:id="playlistsListView" layoutX="500.0" layoutY="122.0" prefHeight="229.0" prefWidth="200.0" style="-fx-background-color: lightyellow;" />
+      <Label alignment="CENTER" layoutX="500.0" layoutY="90.0" prefHeight="35.0" prefWidth="200.0" style="-fx-background-color: lightgreen;" text="All playlists" />
+      <Label fx:id="selectedPlaylistLabel" alignment="CENTER" layoutX="201.0" layoutY="90.0" prefHeight="35.0" prefWidth="298.0" text="Selected media" />
+      <ListView fx:id="currentPlaylistListView" layoutX="201.0" layoutY="125.0" prefHeight="344.0" prefWidth="298.0" />
+      <MediaView fx:id="mediaV" fitHeight="127.0" fitWidth="200.0" layoutX="500.0" layoutY="372.0" />
+      <Label alignment="CENTER" layoutX="499.0" layoutY="351.0" prefHeight="25.0" prefWidth="200.0" style="-fx-background-color: lightgreen;" text="Media preview" />
+      <Button fx:id="previousButton" layoutX="499.0" layoutY="474.0" mnemonicParsing="false" onAction="#onPreviousButtonClick" prefHeight="25.0" prefWidth="25.0" text="⏮">
+         <font>
+            <Font size="11.0" />
+         </font></Button>
+      <Button fx:id="playButton" layoutX="524.0" layoutY="474.0" mnemonicParsing="false" onAction="#onPlayButtonClick" prefHeight="25.0" prefWidth="25.0" text="⏵">
+         <font>
+            <Font size="11.0" />
+         </font></Button>
+      <Button fx:id="stopButton" layoutX="549.0" layoutY="474.0" mnemonicParsing="false" onAction="#onStopButtonClick" prefHeight="25.0" prefWidth="25.0" text="⯀">
+         <font>
+            <Font size="11.0" />
+         </font></Button>
+      <Button fx:id="pauseButton" layoutX="524.0" layoutY="474.0" mnemonicParsing="false" onAction="#onPauseButtonClick" prefHeight="25.0" prefWidth="25.0" text="⏸" visible="false">
+         <font>
+            <Font size="11.0" />
+         </font></Button>
+      <Button fx:id="nextButton" layoutX="574.0" layoutY="474.0" mnemonicParsing="false" onAction="#onNextButtonClick" prefHeight="25.0" prefWidth="25.0" text="⏭">
+         <font>
+            <Font size="11.0" />
+         </font>
+      </Button>
+      <Button fx:id="saveNewPlaylistButton" layoutY="55.0" mnemonicParsing="false" onAction="#onSaveNewPlaylistButtonClick" prefHeight="35.0" prefWidth="233.0" text="Save as new playlist" visible="false" />
+      <TextField fx:id="inputPlaylistNameTField" layoutX="233.0" layoutY="55.0" prefHeight="35.0" prefWidth="467.0" promptText="Enter name of new playlist" visible="false" />
+      <Button fx:id="clearButton" layoutX="200.0" layoutY="474.0" mnemonicParsing="false" onAction="#onClearButtonClick" text="Clear" />
+      <ListView fx:id="editPlaylistListView" layoutX="201.0" layoutY="177.0" prefHeight="293.0" prefWidth="298.0" visible="false" />
+      <Label fx:id="editPlaylistMessageLabel" layoutX="201.0" layoutY="125.0" prefHeight="45.0" prefWidth="298.0" style="-fx-background-color: orange;" text="To remove media: Click a title then the remove button. Add new from library by clicking a title." visible="false" wrapText="true" />
+      <Label fx:id="playlistChangeLabel" alignment="CENTER" layoutX="201.0" layoutY="237.0" prefHeight="92.0" prefWidth="298.0" style="-fx-background-color: lightyellow;" text="Playlist change label" textAlignment="CENTER" visible="false" wrapText="true">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Button fx:id="removeMediaButton" layoutX="243.0" layoutY="474.0" mnemonicParsing="false" onAction="#onRemoveMediaButtonClick" prefHeight="25.0" prefWidth="117.0" text="Remove media" />
+      <Button fx:id="saveChangesButton" layoutY="55.0" mnemonicParsing="false" onAction="#onSaveChangesButtonClick" prefHeight="35.0" prefWidth="234.0" text="Save changes" visible="false" />
    </children>
-</Pane>
+</AnchorPane>
