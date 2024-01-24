@@ -4,25 +4,44 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.media.*?>
+<?import javafx.scene.text.*?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.projectmediaplayer.MediaPlayerController">
    <top>
       <AnchorPane prefHeight="60.0" prefWidth="600.0" style="-fx-background-color: lightblue;" BorderPane.alignment="CENTER">
          <children>
-            <TextField fx:id="searchBar" layoutX="705.0" layoutY="18.0" promptText="Search bar" />
-            <Button fx:id="managePlaylistButton" layoutX="587.0" layoutY="18.0" mnemonicParsing="false" onAction="#onManagePlaylistButtonClick" prefHeight="25.0" prefWidth="106.0" text="Manage playlists" />
+            <TextField fx:id="searchBar" layoutX="434.0" layoutY="18.0" onKeyTyped="#searchList" prefHeight="25.0" prefWidth="255.0" promptText="Search bar" />
+            <Button fx:id="managePlaylistButton" layoutX="705.0" layoutY="18.0" mnemonicParsing="false" onAction="#onManagePlaylistButtonClick" prefHeight="25.0" prefWidth="181.0" text="Manage playlists" />
             <Button fx:id="addToLibraryButton" layoutX="14.0" layoutY="18.0" mnemonicParsing="false" onAction="#onAddToLibraryButtonClick" prefHeight="25.0" prefWidth="143.0" text="Add media to library" />
+            <Label fx:id="currentMediaLabel" layoutX="178.0" layoutY="16.0" prefHeight="17.0" prefWidth="236.0">
+               <font>
+                  <Font size="20.0" />
+               </font></Label>
          </children></AnchorPane>
    </top>
    <bottom>
       <AnchorPane prefHeight="60.0" prefWidth="600.0" style="-fx-background-color: lightblue;" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="previousButton" layoutX="312.0" layoutY="8.0" mnemonicParsing="false" onAction="#onPreviousButtonClick" prefHeight="45.0" prefWidth="45.0" text="Previous" />
-            <Button fx:id="playButton" layoutX="367.0" layoutY="8.0" mnemonicParsing="false" onAction="#onPlayButtonClick" prefHeight="45.0" prefWidth="45.0" text="Play" />
-            <Button fx:id="pauseButton" layoutX="367.0" layoutY="8.0" mnemonicParsing="false" onAction="#onPauseButtonClick" prefHeight="45.0" prefWidth="45.0" text="Pause" visible="false" />
-            <Button fx:id="stopButton" layoutX="424.0" layoutY="8.0" mnemonicParsing="false" onAction="#onStopButtonClick" prefHeight="45.0" prefWidth="45.0" text="Stop" />
-            <Button fx:id="nextButton" layoutX="481.0" layoutY="8.0" mnemonicParsing="false" onAction="#onNextButtonClick" prefHeight="45.0" prefWidth="45.0" text="Next" />
-            <Slider fx:id="volumeSlider" layoutX="547.0" layoutY="23.0" />
+            <Button fx:id="previousButton" layoutX="312.0" layoutY="8.0" mnemonicParsing="false" onAction="#onPreviousButtonClick" prefHeight="45.0" prefWidth="45.0" text="⏮">
+               <font>
+                  <Font size="20.0" />
+               </font></Button>
+            <Button fx:id="playButton" layoutX="367.0" layoutY="8.0" mnemonicParsing="false" onAction="#onPlayButtonClick" prefHeight="45.0" prefWidth="45.0" text="⏵">
+               <font>
+                  <Font size="19.0" />
+               </font></Button>
+            <Button fx:id="pauseButton" layoutX="367.0" layoutY="8.0" mnemonicParsing="false" onAction="#onPauseButtonClick" prefHeight="45.0" prefWidth="45.0" text="⏸" visible="false">
+               <font>
+                  <Font size="19.0" />
+               </font></Button>
+            <Button fx:id="stopButton" layoutX="424.0" layoutY="8.0" mnemonicParsing="false" onAction="#onStopButtonClick" prefHeight="45.0" prefWidth="45.0" text="⯀">
+               <font>
+                  <Font size="20.0" />
+               </font></Button>
+            <Button fx:id="nextButton" layoutX="481.0" layoutY="8.0" mnemonicParsing="false" onAction="#onNextButtonClick" prefHeight="45.0" prefWidth="45.0" text="⏭">
+               <font>
+                  <Font size="20.0" />
+               </font></Button>
             <Button fx:id="clearQueueButton" layoutX="721.0" layoutY="11.0" mnemonicParsing="false" onAction="#onClearQueueButtonClick" prefHeight="25.0" prefWidth="152.0" text="Clear queue" />
          </children>
       </AnchorPane>
@@ -37,7 +56,8 @@
    <center>
       <Pane prefHeight="380.0" prefWidth="540.0" BorderPane.alignment="CENTER">
          <children>
-            <MediaView fx:id="mediaV" fitHeight="382.0" fitWidth="504.0" layoutY="6.0" />
+            <ListView fx:id="searchBarListView" layoutX="275.0" layoutY="-17.0" prefHeight="165.0" prefWidth="253.0" visible="false" />
+            <MediaView fx:id="mediaV" fitHeight="380.0" fitWidth="540.0" layoutX="-1.0" layoutY="-1.0" />
             <VBox fx:id="addMediaBox" layoutX="112.0" layoutY="4.0" prefHeight="375.0" prefWidth="280.0" style="-fx-background-color: white; -fx-border-color: black;" visible="false">
                <children>
                   <Label alignment="CENTER" prefHeight="45.0" prefWidth="280.0" text="Enter the name of the artist" />
@@ -63,14 +83,19 @@
    <left>
       <Pane prefHeight="382.0" prefWidth="160.0" BorderPane.alignment="CENTER">
          <children>
-            <TitledPane fx:id="mediaLibraryPane" animated="false" layoutY="213.0" prefHeight="169.0" prefWidth="160.0" text="Media Library">
+            <TitledPane fx:id="mediaLibraryPane" animated="false" layoutY="127.0" prefHeight="169.0" prefWidth="160.0" text="Media Library">
                <content>
-                  <ListView fx:id="mediaLibraryListView" prefHeight="49.0" prefWidth="158.0" />
+                  <ListView fx:id="mediaLibraryListView" prefHeight="160.0" prefWidth="158.0" />
                </content>
             </TitledPane>
-            <TitledPane prefHeight="212.0" prefWidth="160.0" text="Playlists">
+            <TitledPane prefHeight="127.0" prefWidth="160.0" text="Playlists">
                <content>
-                  <ListView fx:id="playlistsListView" prefHeight="200.0" prefWidth="200.0" />
+                  <ListView fx:id="playlistsListView" prefHeight="154.0" prefWidth="158.0" />
+               </content>
+            </TitledPane>
+            <TitledPane layoutY="296.0" prefHeight="84.0" prefWidth="160.0" text="Artists">
+               <content>
+                  <ListView fx:id="artistsListView" prefHeight="200.0" prefWidth="200.0" />
                </content>
             </TitledPane>
          </children>

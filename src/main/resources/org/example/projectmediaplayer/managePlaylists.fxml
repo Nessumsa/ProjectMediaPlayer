@@ -55,7 +55,8 @@
             <Font size="18.0" />
          </font>
       </Label>
-      <Button fx:id="removeMediaButton" layoutX="243.0" layoutY="474.0" mnemonicParsing="false" onAction="#onRemoveMediaButtonClick" prefHeight="25.0" prefWidth="117.0" text="Remove media" />
+      <Button fx:id="removeMediaButton" layoutX="243.0" layoutY="474.0" mnemonicParsing="false" onAction="#onRemoveMediaButtonClick" prefHeight="25.0" prefWidth="117.0" text="Remove media" visible="false" />
       <Button fx:id="saveChangesButton" layoutY="55.0" mnemonicParsing="false" onAction="#onSaveChangesButtonClick" prefHeight="35.0" prefWidth="234.0" text="Save changes" visible="false" />
+      <Label fx:id="currentMediaLabel" layoutX="600.0" layoutY="474.0" prefHeight="25.0" prefWidth="102.0" style="-fx-background-color: white;" />
    </children>
 </AnchorPane>

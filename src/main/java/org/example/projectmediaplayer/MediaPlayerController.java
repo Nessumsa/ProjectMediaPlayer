@@ -1,17 +1,12 @@
 package org.example.projectmediaplayer;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -19,7 +14,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.media.*;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 import java.io.IOException;
 import java.sql.*;
@@ -34,26 +28,36 @@ public class MediaPlayerController implements Initializable {
 
 
     @FXML
-    private Button playButton, pauseButton, createPlaylistButton, saveNewPlaylistButton, saveChangesButton;
+    private Button playButton, pauseButton, createPlaylistButton, saveNewPlaylistButton, saveChangesButton, removeMediaButton;
     @FXML
     private VBox addMediaBox;
     @FXML
-    private TextField inputArtistTField, inputMediaNameTField, inputPathTField, inputPlaylistNameTField;
+    private TextField inputArtistTField, inputMediaNameTField, inputPathTField, inputPlaylistNameTField, searchBar;
     @FXML
-    private Label mediaAddedLabel, playlistChangeLabel, editPlaylistMessageLabel;
+    private Label mediaAddedLabel, playlistChangeLabel, editPlaylistMessageLabel, currentMediaLabel;
     @FXML
-    private ListView mediaLibraryListView, playlistsListView, currentPlaylistListView, editPlaylistListView;
+    private ListView mediaLibraryListView, playlistsListView, currentPlaylistListView, editPlaylistListView, artistsListView, searchBarListView;
 
+    //region arrays and global variables
     private ArrayList<String> playlistLibrary = new ArrayList<>();
     private ArrayList<String> currentPlaylist = new ArrayList<>();
     private ArrayList<String> mediaFilePath = new ArrayList<>();
-    private ArrayList<String> mediaLibrary = new ArrayList<>();
     private ArrayList<String> mediaNameList = new ArrayList<>();
     private ArrayList<String> artistNameList = new ArrayList<>();
     private int currentMediaIndex = 0;
     private String currentSelectedPlaylist;
-    private String currentSelectedMedia;
+    @FXML
+    private MediaView mediaV;
+    private MediaPlayer mp;
+    private Media media;
 
+    //endregion
+
+    /**
+     * method to establish connection to SQL server
+     * @return
+     * @throws SQLException
+     */
     private Connection connectToSQL() throws SQLException {
         String url = "jdbc:sqlserver://localhost:1433;databaseName=dbMediaPlayer";
 
@@ -65,7 +69,7 @@ public class MediaPlayerController implements Initializable {
     }
 
     //region importMethods
-    private void importMediaFromSQL() throws SQLException {
+    private void importMediaFromSQL() throws SQLException { //imports all the media titles and filepaths from SQL to Arraylists and is called upen launching the program
         Connection connection = connectToSQL();
         Statement stmt = connection.createStatement();
 
@@ -73,13 +77,12 @@ public class MediaPlayerController implements Initializable {
         while (medias.next()){
             mediaFilePath.add(medias.getString(2).trim());
             mediaNameList.add(medias.getString(4).trim());
-            artistNameList.add(medias.getString(3).trim());
         }
         mediaLibraryListView.getItems().addAll(mediaNameList);
 
     }
-    @FXML
-    private void importPlaylistsFromSQL() throws SQLException {
+
+    private void importPlaylistsFromSQL() throws SQLException { //imports the different playlists saved in the SQL database, also called when launching the program
 
         Connection connection = connectToSQL();
         Statement stmt = connection.createStatement();
@@ -90,7 +93,28 @@ public class MediaPlayerController implements Initializable {
         }
         playlistsListView.getItems().addAll(playlistLibrary);
     }
-    private void importSpecificPlaylist(String playlistName) throws SQLException {
+    private void importArtistsFromSQL() throws SQLException{ //imports the list of different artists
+        Connection connection = connectToSQL();
+        Statement stmt = connection.createStatement();
+
+        ResultSet artistsList = stmt.executeQuery("SELECT DISTINCT fldArtist FROM tblMedias");
+        while(artistsList.next()){
+            artistNameList.add(artistsList.getString(1).trim());
+        }
+        artistsListView.getItems().addAll(artistNameList);
+        artistsListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                currentPlaylistListView.getItems().clear();
+                try {
+                    importSpecificArtistMedia(t1);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+    private void importSpecificPlaylist(String playlistName) throws SQLException { //method to get a specific playlist from the database.
         Connection connection = connectToSQL();
         Statement stmt = connection.createStatement();
 
@@ -104,13 +128,40 @@ public class MediaPlayerController implements Initializable {
             editPlaylistListView.getItems().addAll(currentPlaylist);
         }
     }
+    private void importSpecificArtistMedia(String artistName) throws SQLException{ //method to get all media with a specific artist
+        Connection connection = connectToSQL();
+        Statement stmt = connection.createStatement();
+
+        currentPlaylist.clear();
+        ResultSet artistPlaylist = stmt.executeQuery("SELECT fldMediaTitle FROM tblMedias WHERE fldArtist='"+artistName+"'");
+        while(artistPlaylist.next()){
+            currentPlaylist.add(artistPlaylist.getString(1).trim());
+        }
+        currentPlaylistListView.getItems().addAll(currentPlaylist);
+        getSelectedMedia(currentPlaylist.get(0));
+    }
     //endregion
+
+    /**
+     * This is the main method used when switching between different media. Based on the input of a mediaTitle it finds the filepath and loads the media to the mediaPlayer.
+     * Because this method is used everytime a media is played I included the 'setOnEndOfMedia' here to automatically select the next media on the current playlist.
+     * @param mediaTitle
+     * @throws SQLException
+     */
     private void getSelectedMedia(String mediaTitle) throws SQLException {
         int mediaPathIndex = mediaNameList.indexOf(mediaTitle);
         String mediaPath = new File(mediaFilePath.get(mediaPathIndex)).getAbsolutePath();
         media = new Media(new File(mediaPath).toURI().toString());
         mp = new MediaPlayer(media);
         mediaV.setMediaPlayer(mp);
+        currentMediaLabel.setText(mediaTitle);
+        mp.setOnEndOfMedia(() -> {
+            try {
+                onNextButtonClick();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     //region control buttons
@@ -142,6 +193,9 @@ public class MediaPlayerController implements Initializable {
             getSelectedMedia(currentPlaylist.get(currentPlaylist.size()-1));
             currentMediaIndex = currentPlaylist.size()-1;
         }
+        mp.play();
+        playButton.setVisible(false);
+        pauseButton.setVisible(true);
     }
     @FXML
     private void onNextButtonClick() throws SQLException {
@@ -153,13 +207,24 @@ public class MediaPlayerController implements Initializable {
             getSelectedMedia(currentPlaylist.get(0));
             currentMediaIndex = 0;
         }
+        mp.play();
+        playButton.setVisible(false);
+        pauseButton.setVisible(true);
     }
     @FXML
     private void onClearQueueButtonClick(){
+        currentPlaylist.clear();
         currentPlaylistListView.getItems().clear();
     }
     //endregion
     //region add new media methods
+
+    /**
+     * Method to check if the artist name is already in the database, used when added new media to the library.
+     * @param artistName this is user input when adding new media.
+     * @return the return is an int but could also have been a boolean. The result is the same.
+     * @throws SQLException
+     */
     private int checkArtistExist(String artistName) throws SQLException {
         Connection connection = connectToSQL();
         Statement stmt = connection.createStatement();
@@ -171,7 +236,7 @@ public class MediaPlayerController implements Initializable {
         return num;
     }
     @FXML
-    private void onAddToLibraryButtonClick(){
+    private void onAddToLibraryButtonClick(){ //the 'add new media-box' is hidden behind the MediaView, and can be toggled on with this method
         if(!addMediaBox.isVisible()) {
             addMediaBox.setVisible(true);
         }
@@ -180,6 +245,11 @@ public class MediaPlayerController implements Initializable {
         }
     }
 
+    /**
+     * Method which adds a new media to the database for further use. It takes three inputs, checks if the artistName already exist because the field in the database table for artistName is a primary key hence must be unigue.
+     * If the artist does not exist in the database, the new artist is also added together with the new media. After adding the media, the mediaLibrary is refreshed.
+     * @throws SQLException
+     */
     @FXML
     private void onAddMediaButtonClick() throws SQLException {
         String artistName = inputArtistTField.getText();
@@ -201,7 +271,6 @@ public class MediaPlayerController implements Initializable {
         inputArtistTField.clear();
         inputMediaNameTField.clear();
         inputPathTField.clear();
-        mediaLibrary.clear();
         mediaLibraryListView.getItems().clear();
         importMediaFromSQL();
     }
@@ -210,6 +279,7 @@ public class MediaPlayerController implements Initializable {
         addMediaBox.setVisible(false);
     }
     //endregion
+    //region manage playlists window
     @FXML
     private void onCreatePlaylistButtonClick(){
         createPlaylistButton.setVisible(false);
@@ -222,6 +292,11 @@ public class MediaPlayerController implements Initializable {
         currentPlaylist.clear();
         currentPlaylistListView.getItems().clear();
     }
+
+    /**
+     * Method similar to the 'add new media' method but this adds a new playlist to the database.
+     * @throws SQLException
+     */
     @FXML
     private void onSaveNewPlaylistButtonClick() throws SQLException {
         String newPlaylistName = inputPlaylistNameTField.getText();
@@ -260,13 +335,13 @@ public class MediaPlayerController implements Initializable {
         });
     }
     @FXML
-    private void onEditPlaylistButtonClick() throws SQLException {
+    private void onEditPlaylistButtonClick() throws SQLException { //This changes the view in the 'manage playlists' window to accommodate buttons for editing current playlists.
         editPlaylistMessageLabel.setVisible(true);
         editPlaylistListView.setVisible(true);
         editPlaylistListView.getItems().addAll(currentPlaylist);
-        System.out.println(currentPlaylist);
         saveChangesButton.setVisible(true);
         inputPlaylistNameTField.setVisible(true);
+        removeMediaButton.setVisible(true);
         editPlaylistListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
@@ -275,7 +350,7 @@ public class MediaPlayerController implements Initializable {
         });
     }
     @FXML
-    private void onRemoveMediaButtonClick(){
+    private void onRemoveMediaButtonClick(){ //Removes the selected media from a playlist, but needs to be saved afterward to have an effect in the database.
         currentPlaylist.remove(currentMediaIndex);
         playlistChangeLabel.setText("Media removed from playlist");
         playlistChangeLabel.setVisible(true);
@@ -295,6 +370,9 @@ public class MediaPlayerController implements Initializable {
             }
         });
     }
+    /*
+    Method used to save changes when editing a playlist by deleting the playlist and creating a new.
+     */
     @FXML
     private void onSaveChangesButtonClick() throws SQLException {
         Connection connection = connectToSQL();
@@ -306,10 +384,11 @@ public class MediaPlayerController implements Initializable {
         onSaveNewPlaylistButtonClick();
         editPlaylistMessageLabel.setVisible(false);
         editPlaylistListView.setVisible(false);
+        removeMediaButton.setVisible(false);
     }
 
     @FXML
-    private void onDeletePlaylistButtonClick() throws SQLException {
+    private void onDeletePlaylistButtonClick() throws SQLException { //Deletes the selected playlist from the database. Cannot be reversed.
         Connection connection = connectToSQL();
         Statement stmt = connection.createStatement();
 
@@ -328,12 +407,10 @@ public class MediaPlayerController implements Initializable {
         });
 
     }
-    //endregion
-    @FXML
-    private MediaView mediaV;
-    private MediaPlayer mp;
-    private Media media;
-
+    /*
+    As I did not want to hide yet another window behind the MediaView I created a separate fxml file for managing playlists (creating, editing and deleting). This method opens the window.
+    The same controller class is used in both windows as many of the elements where used again. A separate controller class would in the long run be a better option.
+    */
     @FXML
     private void onManagePlaylistButtonClick(ActionEvent event){
 
@@ -350,7 +427,7 @@ public class MediaPlayerController implements Initializable {
         }
     }
     @FXML
-    private void onBackToMediaplayerButtonClick(ActionEvent event){
+    private void onBackToMediaplayerButtonClick(ActionEvent event){ //This method "closes" the manage playlist window and opens the mediaplayer again.
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MediaPlayerApplication.class.getResource("mediaplayer.fxml"));
             Stage stage = (Stage) ((Node)event.getSource()).getScene().getWindow();
@@ -363,8 +440,82 @@ public class MediaPlayerController implements Initializable {
             throw new RuntimeException(e);
         }
     }
+    //endregion
 
-
+    //region searchbar and functionality
+    /*
+    This method makes it possible to search for media, artists and playlists int the search bar. It shows the results of the current typed letters as a dynamic ListView under the search bar.
+     */
+    @FXML
+    private void searchList(){
+        if(!searchBar.getText().isEmpty()) {
+            String searchWords = searchBar.getText();
+            searchBarListView.getItems().clear();
+            searchBarListView.setVisible(true);
+            mediaV.toBack();
+            ArrayList<String> getSearchResults = new ArrayList<>();
+            String artist = "Artist: ";
+            String playlist = "Playlist: ";
+            for (String results : mediaNameList) {
+                if (results.toLowerCase().contains(searchWords.toLowerCase())) {
+                    getSearchResults.add(results);
+                }
+            }
+            for (String results : artistNameList){
+                if (results.toLowerCase().contains(searchWords.toLowerCase())){
+                    getSearchResults.add(artist+results);
+                }
+            }
+            for(String results : playlistLibrary){
+                if (results.toLowerCase().contains(searchWords.toLowerCase())){
+                    getSearchResults.add(playlist+results);
+                }
+            }
+            searchBarListView.setPrefHeight(getSearchResults.size() * 23.9);
+            searchBarListView.getItems().addAll(getSearchResults);
+        }
+        else{
+            searchBarListView.setVisible(false);
+            mediaV.toFront();
+        }
+        /*
+        Here is the function to click on a media, artist or playlist in the search ListView and load it to the queue.
+         */
+        searchBarListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue,String s, String t1) {
+                searchBarListView.setVisible(false);
+                if(t1!=null && t1.startsWith("Artist")){
+                    try {
+                        currentPlaylist.clear();
+                        currentPlaylistListView.getItems().clear();
+                        importSpecificArtistMedia(t1.substring(8));
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else if(t1!=null && t1.startsWith("Playlist")){
+                    try {
+                        importSpecificPlaylist(t1.substring(10));
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else if (t1!=null){
+                    try {
+                        currentPlaylist.clear();
+                        currentPlaylistListView.getItems().clear();
+                        currentPlaylist.add(t1);
+                        currentPlaylistListView.getItems().addAll(t1);
+                        getSelectedMedia(t1);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        });
+    }
+    //endregion
     /**
      * This method is invoked automatically in the beginning. Used for initializing, loading data etc.
      *
@@ -385,17 +536,21 @@ public class MediaPlayerController implements Initializable {
         mp.setAutoPlay(true);
 
         try {
-            importMediaFromSQL();
-            importPlaylistsFromSQL();
+            importMediaFromSQL(); //Loads the media from SQL to the media library in the mediaplayer
+            importPlaylistsFromSQL(); //Loads the playlists from SQL.
+            if(artistsListView!=null) { //This validation is necessary as I do not have an artistsListView in both fxml files.
+                importArtistsFromSQL(); //Loads the artists from SQL
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        /*
+        Clicking on a media in the mediaLibraryListView adds the media to the queue.
+         */
         mediaLibraryListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                //currentPlaylist.clear();
                 currentPlaylist.add(t1);
-                //currentPlaylistListView.getItems().clear();
                 currentPlaylistListView.getItems().addAll(t1);
                 playButton.setVisible(true);
                 try {
@@ -410,10 +565,13 @@ public class MediaPlayerController implements Initializable {
                 }
             }
         });
+        /*
+        Clicking a playlist name in the playlistsListView will clear the current queue and load the playlist to the queue
+         */
         playlistsListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue,String s, String t1) {
-                if(inputPlaylistNameTField != null) {
+                if(inputPlaylistNameTField != null) { //Validation because the textfield is not part of the mediaplayer fxml.
                     if (t1 != null) {
                         inputPlaylistNameTField.setText(t1);
                     }
@@ -423,7 +581,7 @@ public class MediaPlayerController implements Initializable {
                     editPlaylistListView.getItems().clear();
                 }
                 try {
-                    if(t1 != null) {
+                    if(t1 != null) { //As I have had problems with the parameters t1 and s I could fix it with these validations.
                         importSpecificPlaylist(t1);
                         currentSelectedPlaylist = t1;
                         getSelectedMedia(currentPlaylist.get(0));
@@ -436,18 +594,5 @@ public class MediaPlayerController implements Initializable {
                 }
             }
         });
-
-        currentPlaylistListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                try {
-                    getSelectedMedia(t1);
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-
     }
 }
